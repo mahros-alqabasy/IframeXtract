@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iframextract"
+version = "1.0.0"
+description = "A cross-platform CLI tool to extract <iframe> elements from HTML files."
+authors = [
+  { name = "Mahros Alqabasy", email = "mahros.elqabasy@gmail.com" }
+]
+dependencies = [
+  "beautifulsoup4>=4.12",
+  "rich>=13.0"
+]
+requires-python = ">=3.7"
+readme = "README.md"
+license = { text = "MIT" }
+
+[project.scripts]
+iframextract = "iframextract.cli:run_cli"
