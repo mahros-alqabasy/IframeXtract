@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install Python build dependencies
         run: |
@@ -40,10 +40,7 @@ jobs:
           python3 -m pip install dist/*.whl --target build/iframextract_deb/usr/lib/iframextract
 
           # Copy the CLI launcher script
-          echo '#!/usr/bin/env python3
-from iframextract.cli import main
-if __name__ == "__main__":
-    main()' > build/iframextract_deb/usr/bin/iframextract
+          echo '#!/usr/bin/env python3\nfrom iframextract.cli import main\nif __name__ == "__main__":\n    main()' > build/iframextract_deb/usr/bin/iframextract
           chmod +x build/iframextract_deb/usr/bin/iframextract
 
           # Add man page
@@ -51,15 +48,7 @@ if __name__ == "__main__":
           gzip -9 build/iframextract_deb/usr/share/man/man1/iframextract.1
 
           # Create control file
-          echo 'Package: iframextract
-Version: 1.0.0
-Section: utils
-Priority: optional
-Architecture: all
-Depends: python3
-Maintainer: Mahros <your.email@example.com>
-Description: CLI tool to extract <iframe> elements from HTML
-' > build/iframextract_deb/DEBIAN/control
+          echo 'Package: iframextract\nVersion: 1.0.0\nSection: utils\nPriority: optional\nArchitecture: all\nDepends: python3\nMaintainer: Mahros <your.email@example.com>\nDescription: CLI tool to extract <iframe> elements from HTML\n' > build/iframextract_deb/DEBIAN/control
 
       - name: Build .deb package
         run: |
@@ -69,4 +58,4 @@ Description: CLI tool to extract <iframe> elements from HTML
         uses: actions/upload-artifact@v4
         with:
           name: iframextract-deb
-          path: dist/*.deb
+          path: "dist/*.deb"
