@@ -1,0 +1,10 @@
+Package: iframextract
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Depends: python3
+Maintainer: Mahros <Mahros.elqabasy@gmail.com>
+Description: CLI tool to extract <iframe> elements from HTML
+ A simple, colorized command-line tool that extracts <iframe> elements
+ from HTML files and outputs them as standalone files.

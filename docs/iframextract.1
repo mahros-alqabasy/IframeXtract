@@ -1,0 +1,43 @@
+.TH iframextract 1 "May 2025" "iframextract 1.0.0" "User Commands"
+.SH NAME
+iframextract \- Extract <iframe> elements from HTML files and export them as standalone HTML files.
+
+.SH SYNOPSIS
+.B iframextract
+.RI [ options ] " <input.html>"
+
+.SH DESCRIPTION
+The
+.B iframextract
+tool is a cross-platform CLI utility that extracts all <iframe> tags from HTML files and saves them as standalone HTML documents.
+
+.P
+Supported features include:
+.IP \[bu] 2
+Single HTML file or entire directory input.
+.IP \[bu] 2
+Customizable output file naming using patterns.
+.IP \[bu] 2
+Colorized terminal output.
+.IP \[bu] 2
+Automatic man page integration.
+
+.SH OPTIONS
+.TP
+.B \-i, \-\-input
+Path to the input HTML file or directory.
+.TP
+.B \-o, \-\-output
+Path to the output directory where iframes will be saved.
+.TP
+.B \-f, \-\-format
+Customize output file names using placeholders like {filename}, {iframe_index}, {iframe_title}, etc.
+.TP
+.B \-h, \-\-help
+Show help and usage instructions.
+
+.SH AUTHOR
+Mahros <your.email@example.com>
+
+.SH SEE ALSO
+.BR man (1)
