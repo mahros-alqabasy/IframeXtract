@@ -1,14 +1,14 @@
-name: Build and Release Debian Package
+name: Auto Build and Release Debian Package
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build-deb:
-    name: Build and release .deb for iframextract
+  build-and-release:
+    name: Build and auto-release .deb for iframextract
     runs-on: ubuntu-latest
 
     steps:
@@ -37,16 +37,16 @@ jobs:
           mkdir -p build/iframextract_deb/usr/bin
           mkdir -p build/iframextract_deb/usr/share/man/man1
 
-          # Copy DEBIAN control files
+          # Copy DEBIAN metadata
           cp debian/control build/iframextract_deb/DEBIAN/control
           if [ -f debian/postinst ]; then cp debian/postinst build/iframextract_deb/DEBIAN/postinst; fi
           if [ -f debian/rules ]; then cp debian/rules build/iframextract_deb/DEBIAN/rules; fi
           chmod 755 build/iframextract_deb/DEBIAN/*
 
-          # Install Python package
+          # Install package into custom lib path
           python3 -m pip install dist/*.whl --target build/iframextract_deb/usr/lib/iframextract
 
-          # Copy launcher script
+          # Copy CLI launcher
           cp debian/iframextract build/iframextract_deb/usr/bin/iframextract
           chmod +x build/iframextract_deb/usr/bin/iframextract
 
@@ -58,15 +58,22 @@ jobs:
         run: |
           dpkg-deb --build build/iframextract_deb dist/
 
-      - name: Upload Debian package as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: iframextract-deb
-          path: dist/*.deb
+      - name: Generate auto tag name
+        id: tag
+        run: echo "tag=auto-$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
+      - name: Create GitHub tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ steps.tag.outputs.tag }}
+          git push origin ${{ steps.tag.outputs.tag }}
+
+      - name: Create GitHub release and upload .deb
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Auto Release ${{ steps.tag.outputs.tag }}
           files: dist/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
