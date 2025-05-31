@@ -2,11 +2,13 @@ name: Build and Release Debian Package
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build-deb:
+    name: Build and release .deb for iframextract
     runs-on: ubuntu-latest
 
     steps:
@@ -18,42 +20,49 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Python build dependencies
         run: |
           python -m pip install --upgrade pip
           pip install build
 
       - name: Build Python wheel
-        run: |
-          python -m build --wheel --outdir dist/
+        run: python -m build --wheel --outdir dist/
 
-      - name: Prepare Debian package structure
+      - name: Prepare Debian packaging directory and install wheel
         run: |
-          mkdir -p build/iframextract_deb/DEBIAN
+          # Clean previous build folder if any
+          rm -rf build/iframextract_deb
+
+          # Create target folder for Debian package
           mkdir -p build/iframextract_deb/usr/lib/iframextract
-          mkdir -p build/iframextract_deb/usr/bin
-          mkdir -p build/iframextract_deb/usr/share/man/man1
 
-          # Copy Debian control file
-          cp debian/control build/iframextract_deb/DEBIAN/control
+          # Copy your existing debian directory into build folder
+          cp -r debian build/iframextract_deb/
 
-          # Copy wheel contents to /usr/lib/iframextract
+          # Install the built wheel into the /usr/lib/iframextract directory inside build folder
           python3 -m pip install dist/*.whl --target build/iframextract_deb/usr/lib/iframextract
 
-          # Install CLI launcher
-          cp debian/iframextract build/iframextract_deb/usr/bin/iframextract
-          chmod +x build/iframextract_deb/usr/bin/iframextract
-
-          # Install man page
-          cp docs/iframextract.1 build/iframextract_deb/usr/share/man/man1/
-          gzip -9 build/iframextract_deb/usr/share/man/man1/iframextract.1
+          # Make launcher script executable (assuming debian/iframextract is your launcher script)
+          chmod +x build/iframextract_deb/debian/iframextract
 
       - name: Build .deb package
         run: |
-          dpkg-deb --build build/iframextract_deb dist/
+          # Rename debian directory to DEBIAN (required by dpkg-deb)
+          mv build/iframextract_deb/debian build/iframextract_deb/DEBIAN
 
-      - name: Upload Debian package
+          # Build the Debian package
+          dpkg-deb --build build/iframextract_deb dist/iframextract_1.0.0_all.deb
+
+      - name: Upload Debian package as artifact
         uses: actions/upload-artifact@v4
         with:
           name: iframextract-deb
           path: dist/*.deb
+
+      - name: Create GitHub Release and upload .deb
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.deb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
